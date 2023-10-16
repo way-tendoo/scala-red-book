@@ -136,5 +136,4 @@ object List {
     if (listStr.nonEmpty && subStr.isEmpty) return false
     listStr.contains(subStr)
   }
-
 }
