@@ -85,23 +85,17 @@ object List {
     loop(list)(init)
   }
 
-  def length[A](list: List[A]): Int =
-    foldLeft(list, 0)((acc: Int, _) => acc + 1)
+  def length[A](list: List[A]): Int = foldLeft(list, 0)((acc: Int, _) => acc + 1)
 
-  def reverse[A](list: List[A]): List[A] =
-    foldLeft(list, Nil: List[A])((acc, a) => Cons(a, acc))
+  def reverse[A](list: List[A]): List[A] = foldLeft(list, Nil: List[A])((acc, a) => Cons(a, acc))
 
-  def flatten[A](lists: List[List[A]]): List[A] =
-    foldRight(lists, Nil: List[A])((a, acc) => append(a, acc))
+  def flatten[A](lists: List[List[A]]): List[A] = foldRight(lists, Nil: List[A])((a, acc) => append(a, acc))
 
-  def map[A, B](list: List[A])(f: A => B): List[B] =
-    foldRight(list, Nil: List[B])((a, acc) => Cons(f(a), acc))
+  def map[A, B](list: List[A])(f: A => B): List[B] = foldRight(list, Nil: List[B])((a, acc) => Cons(f(a), acc))
 
-  def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] =
-    List.flatten(List.map(list)(f))
+  def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] = List.flatten(List.map(list)(f))
 
-  def filter[A](list: List[A])(p: A => Boolean): List[A] =
-    flatMap(list)(i => if (p(i)) List(i) else Nil)
+  def filter[A](list: List[A])(p: A => Boolean): List[A] = flatMap(list)(i => if (p(i)) List(i) else Nil)
 
   def foreach[A](list: List[A])(f: A => Unit): Unit = map(list)(f)
 
