@@ -1,7 +1,5 @@
 package redbook.chapter3
 
-import redbook.chapter2.{ Curry, Uncurry }
-
 import scala.annotation.tailrec
 
 sealed trait List[+A]
@@ -115,7 +113,17 @@ object List {
     flatMap(list)(i => if (p(i)) List(i) else Nil)
   }
 
-  def foreach[A](list: List[A])(a: A => Unit): Unit = map(list)(a)
+  def foreach[A](list: List[A])(f: A => Unit): Unit = map(list)(f)
+
+  def forall[A](list: List[A])(p: A => Boolean): Boolean = {
+    @tailrec
+    def loop(list: List[A]): Boolean = list match {
+      case Nil                         => true
+      case Cons(head, _) if !p(head)   => false
+      case Cons(head, tail) if p(head) => loop(tail)
+    }
+    loop(list)
+  }
 
   def zipWith[A](lhs: List[A], rhs: List[A])(zip: (A, A) => A): List[A] = {
     val lists = if (length(lhs) <= length(rhs)) (lhs, rhs) else (rhs, lhs)
