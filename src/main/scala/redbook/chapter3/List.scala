@@ -91,14 +91,6 @@ object List {
 
   def flatten[A](lists: List[List[A]]): List[A] = foldRight(lists, Nil: List[A])((a, acc) => append(a, acc))
 
-  def map[A, B](list: List[A])(f: A => B): List[B] = foldRight(list, Nil: List[B])((a, acc) => Cons(f(a), acc))
-
-  def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] = List.flatten(List.map(list)(f))
-
-  def filter[A](list: List[A])(p: A => Boolean): List[A] = flatMap(list)(i => if (p(i)) List(i) else Nil)
-
-  def foreach[A](list: List[A])(f: A => Unit): Unit = map(list)(f)
-
   def forall[A](list: List[A])(p: A => Boolean): Boolean = {
     @tailrec
     def loop(list: List[A]): Boolean = list match {
@@ -108,6 +100,14 @@ object List {
     }
     loop(list)
   }
+
+  def map[A, B](list: List[A])(f: A => B): List[B] = foldRight(list, Nil: List[B])((a, acc) => Cons(f(a), acc))
+
+  def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] = List.flatten(List.map(list)(f))
+
+  def filter[A](list: List[A])(p: A => Boolean): List[A] = flatMap(list)(i => if (p(i)) List(i) else Nil)
+
+  def foreach[A](list: List[A])(f: A => Unit): Unit = map(list)(f)
 
   def zipWith[A](lhs: List[A], rhs: List[A])(zip: (A, A) => A): List[A] = {
     val lists = if (length(lhs) <= length(rhs)) (lhs, rhs) else (rhs, lhs)
