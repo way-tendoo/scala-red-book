@@ -40,28 +40,29 @@ class OptionSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "map2 func" should "work" in {
-    Option.map2(Some(3), Some(4))((a, b) => a + b) shouldBe Some(7)
-    Option.map2(Some(3), None: Option[Int])((a, b) => a + b) shouldBe None
-    Option.map2(None: Option[Int], Some(3))((a, b) => a + b) shouldBe None
-    Option.map2(None: Option[Int], None: Option[Int])((a, b) => a + b) shouldBe None
+    Some(3).map2(Some(4))((a, b) => a + b) shouldBe Some(7)
+    Some(3).map2(None: Option[Int])((a, b) => a + b) shouldBe None
+    (None: Option[Int]).map2(Some(3))((a, b) => a + b) shouldBe None
+    (None: Option[Int]).map2(None: Option[Int])((a, b) => a + b) shouldBe None
   }
 
   "sequence func" should "work" in {
-    Option.sequence(List(Some(4), Some(5), Some(6))) shouldBe Some(List(4, 5, 6))
-    Option.sequence(List(Some(4), None: Option[Int], Some(6))) shouldBe None
-    Option.sequence(List()) shouldBe None
+    List(Some(4), Some(5), Some(6)).sequence shouldBe Some(List(4, 5, 6))
+    List(Some(4), None: Option[Int], Some(6)).sequence shouldBe None
+    (List(): List[Option[Int]]).sequence shouldBe None
   }
 
   "traverse func" should "work" in {
-    Option.traverse(List(1, 2, 3)) { i =>
+    import Option._
+    List(1, 2, 3).traverse { i =>
       if (i > 0) Some(i)
       else None
     } shouldBe Some(List(1, 2, 3))
-    Option.traverse(List(1, 2, 3)) { i =>
+    List(1, 2, 3).traverse { i =>
       if (i % 2 == 0) Some(i)
       else None
     } shouldBe None
-    Option.traverse(List(): List[Int]) { i =>
+    (List(): List[Int]).traverse { i =>
       if (i % 2 == 0) Some(i)
       else None
     } shouldBe None

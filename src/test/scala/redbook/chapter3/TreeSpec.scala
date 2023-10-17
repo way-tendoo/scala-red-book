@@ -28,4 +28,9 @@ class TreeSpec extends AnyFlatSpec with should.Matchers {
       Branch(Leaf(3), Branch(Leaf(4), Leaf(5)))
     )
   }
+
+  "fold func" should "work" in {
+    Tree.fold(Leaf(5))(identity)(Math.max) shouldBe 5
+    Tree.fold(Branch(Leaf(1), Branch(Leaf(2), Branch(Leaf(3), Leaf(4)))))(identity)(Math.max) shouldBe 4
+  }
 }

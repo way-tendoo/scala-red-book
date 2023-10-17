@@ -32,6 +32,12 @@ sealed trait Option[+A] {
     case Some(value) if f(value) => Some(value)
     case _                       => None
   }
+
+  def map2[B, C](b: Option[B])(f: (A, B) => C): Option[C] =
+    for {
+      a <- this
+      b <- b
+    } yield f(a, b)
 }
 
 case class Some[+A](value: A) extends Option[A]
@@ -39,19 +45,17 @@ case object None              extends Option[Nothing]
 
 object Option {
 
-  def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
-    for {
-      a <- a
-      b <- b
-    } yield f(a, b)
-
-  def sequence[A](list: List[Option[A]]): Option[List[A]] = {
-    if (list.isEmpty) return None
-    val allSuccess = list.forall(_.isDefined)
-    if (allSuccess) Some(list.map(_.get))
-    else None
+  implicit class ListOptOps[A](val list: List[Option[A]]) {
+    def sequence: Option[List[A]] = {
+      if (list.isEmpty) return None
+      val allSuccess = list.forall(_.isDefined)
+      if (allSuccess) Some(list.map(_.get))
+      else None
+    }
   }
 
-  def traverse[A, B](list: List[A])(f: A => Option[B]): Option[List[B]] = sequence(list.map(f))
+  implicit class ListOps[A](val list: List[A]) {
+    def traverse[B](f: A => Option[B]): Option[List[B]] = list.map(f).sequence
+  }
 
 }

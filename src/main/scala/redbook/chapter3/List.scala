@@ -54,9 +54,7 @@ object List {
     loop(list)(n)
   }
 
-  def append[A](lhs: List[A], rhs: List[A]): List[A] = {
-    foldRight(lhs, rhs)((a, acc) => Cons(a, acc))
-  }
+  def append[A](lhs: List[A], rhs: List[A]): List[A] = foldRight(lhs, rhs)((a, acc) => Cons(a, acc))
 
   def init[A](list: List[A]): List[A] = {
     @tailrec
@@ -76,9 +74,7 @@ object List {
     case Cons(head, tail) => f(head, foldRightNotOptimal(tail, init)(f))
   }
 
-  def foldRight[A, B](list: List[A], init: B)(f: (A, B) => B): B = {
-    foldLeft(reverse(list), init)((acc, a) => f(a, acc))
-  }
+  def foldRight[A, B](list: List[A], init: B)(f: (A, B) => B): B = foldLeft(reverse(list), init)((acc, a) => f(a, acc))
 
   def foldLeft[A, B](list: List[A], init: B)(f: (B, A) => B): B = {
     @tailrec
@@ -89,29 +85,23 @@ object List {
     loop(list)(init)
   }
 
-  def length[A](list: List[A]): Int = {
+  def length[A](list: List[A]): Int =
     foldLeft(list, 0)((acc: Int, _) => acc + 1)
-  }
 
-  def reverse[A](list: List[A]): List[A] = {
+  def reverse[A](list: List[A]): List[A] =
     foldLeft(list, Nil: List[A])((acc, a) => Cons(a, acc))
-  }
 
-  def flatten[A](lists: List[List[A]]): List[A] = {
+  def flatten[A](lists: List[List[A]]): List[A] =
     foldRight(lists, Nil: List[A])((a, acc) => append(a, acc))
-  }
 
-  def map[A, B](list: List[A])(f: A => B): List[B] = {
+  def map[A, B](list: List[A])(f: A => B): List[B] =
     foldRight(list, Nil: List[B])((a, acc) => Cons(f(a), acc))
-  }
 
-  def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] = {
+  def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] =
     List.flatten(List.map(list)(f))
-  }
 
-  def filter[A](list: List[A])(p: A => Boolean): List[A] = {
+  def filter[A](list: List[A])(p: A => Boolean): List[A] =
     flatMap(list)(i => if (p(i)) List(i) else Nil)
-  }
 
   def foreach[A](list: List[A])(f: A => Unit): Unit = map(list)(f)
 
@@ -136,7 +126,8 @@ object List {
     loop(lists)(Nil)
   }
 
-  def toString[A](list: List[A]): String = foldLeft(list, "")((acc, a) => acc + a.toString)
+  def toString[A](list: List[A]): String =
+    foldLeft(list, "")((acc, a) => acc + a.toString)
 
   def hasSubsequence[A](list: List[A], sub: List[A]): Boolean = {
     val listStr = toString(list)
