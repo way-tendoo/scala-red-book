@@ -84,7 +84,6 @@ sealed trait List[+A] {
 
   def zipWith[AA >: A](other: List[AA])(zip: (AA, AA) => AA): List[AA] = {
     val (minLengthList, maxLengthList) = if (this.length <= other.length) (this, other) else (other, this)
-
     @tailrec
     def loop(minLengthList: List[AA], maxLengthList: List[AA])(buffer: List[AA]): List[AA] =
       (minLengthList, maxLengthList) match {
@@ -93,7 +92,6 @@ sealed trait List[+A] {
           val zipped = zip(minLengthListHead, maxLengthListHead)
           loop(minLengthListTail, maxLengthListTail)(buffer.append(List(zipped)))
       }
-
     loop(minLengthList, maxLengthList)(Nil)
   }
 
