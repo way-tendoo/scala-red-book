@@ -107,7 +107,6 @@ sealed trait List[+A] {
     if (thisStr.nonEmpty && subStr.isEmpty) return false
     thisStr.contains(subStr)
   }
-
 }
 case object Nil                             extends List[Nothing]
 case class Cons[+A](head: A, tail: List[A]) extends List[A]
