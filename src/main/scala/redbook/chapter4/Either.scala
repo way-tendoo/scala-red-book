@@ -1,6 +1,7 @@
 package redbook.chapter4
 
 sealed trait Either[+E, +A] {
+
   def map[B](f: A => B): Either[E, B] = this match {
     case Right(value) => Right(f(value))
     case Left(value)  => Left(value)

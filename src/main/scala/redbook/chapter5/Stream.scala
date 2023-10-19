@@ -5,10 +5,8 @@ import redbook.chapter5.Stream.cons
 import scala.annotation.tailrec
 
 sealed trait Stream[+A] {
-  def headOption: Option[A] = this match {
-    case Empty         => None
-    case Cons(head, _) => Some(head())
-  }
+
+  def headOption: Option[A] = foldRight(None: Option[A])((head, _) => Some(head))
 
   def toList: List[A] = this match {
     case Empty            => Nil
@@ -25,14 +23,35 @@ sealed trait Stream[+A] {
     loop(this)(n)
   }
 
+  def append[AA >: A](other: Stream[AA]): Stream[AA] = foldRight(other)((a, acc) => cons(a, acc))
+
+  def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
+    case Cons(h, t) => f(h(), t().foldRight(z)(f))
+    case _          => z
+  }
+
   def take(n: Int): Stream[A] = {
     @tailrec
     def loop(s: Stream[A])(buffer: Stream[A])(n: Int): Stream[A] = s match {
       case Empty | Cons(_, _) if n == 0 => buffer
-      case Cons(_, tail)                => loop(tail())(buffer)(n - 1)
+      case Cons(head, tail)             => loop(tail())(buffer.append(Stream(head())))(n - 1)
     }
-    loop(this)(Empty)(n)
+    loop(this)(Stream.empty)(n)
   }
+
+  def takeWhile(p: A => Boolean): Stream[A] =
+    foldRight(Stream.empty[A])((a, acc) => if (p(a)) cons(a, acc) else Stream.empty[A])
+
+  def exists(p: A => Boolean): Boolean = foldRight(false)((a, acc) => p(a) || acc)
+
+  def forall(p: A => Boolean): Boolean = foldRight(true)((a, acc) => p(a) && acc)
+
+  def map[B](f: A => B): Stream[B] = foldRight(Stream.empty[B])((a, acc) => cons(f(a), acc))
+
+  def flatMap[B](f: A => Stream[B]): Stream[B] = foldRight(Stream.empty[B])((a, acc) => f(a).append(acc))
+
+  def filter(p: A => Boolean): Stream[A] = flatMap(a => if (p(a)) Stream(a) else Stream.empty)
+
 }
 case object Empty                                   extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]

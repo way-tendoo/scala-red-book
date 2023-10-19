@@ -23,7 +23,7 @@ sealed trait List[+A] {
     loop(this)(init)
   }
 
-  def reverse: List[A] = this.foldLeft(Nil: List[A])((acc, a) => Cons(a, acc))
+  def reverse: List[A] = foldLeft(Nil: List[A])((acc, a) => Cons(a, acc))
 
   def dropWhile(predicate: A => Boolean): List[A] = {
     @tailrec
@@ -34,7 +34,7 @@ sealed trait List[+A] {
     loop(this)
   }
 
-  def foldRight[B](init: B)(f: (A, B) => B): B = this.reverse.foldLeft(init)((acc, a) => f(a, acc))
+  def foldRight[B](init: B)(f: (A, B) => B): B = reverse.foldLeft(init)((acc, a) => f(a, acc))
 
   /*
    * Non tail-recursive impl, can throw StackOverflowException
@@ -54,7 +54,7 @@ sealed trait List[+A] {
     loop(this)(n)
   }
 
-  def append[AA >: A](other: List[AA]): List[AA] = this.foldRight(other)((a, acc) => Cons(a, acc))
+  def append[AA >: A](other: List[AA]): List[AA] = foldRight(other)((a, acc) => Cons(a, acc))
 
   def init: List[A] = {
     @tailrec
@@ -66,7 +66,7 @@ sealed trait List[+A] {
     loop(this, Nil)
   }
 
-  def length: Int = this.foldLeft(0)((acc: Int, _) => acc + 1)
+  def length: Int = foldLeft(0)((acc: Int, _) => acc + 1)
 
   def forall(p: A => Boolean): Boolean = {
     @tailrec
@@ -78,9 +78,9 @@ sealed trait List[+A] {
     loop(this)
   }
 
-  def map[B](f: A => B): List[B] = this.foldRight(Nil: List[B])((a, acc) => Cons(f(a), acc))
+  def map[B](f: A => B): List[B] = foldRight(Nil: List[B])((a, acc) => Cons(f(a), acc))
 
-  def flatMap[B](f: A => List[B]): List[B] = this.map(f).flatten
+  def flatMap[B](f: A => List[B]): List[B] = map(f).flatten
 
   def zipWith[AA >: A](other: List[AA])(zip: (AA, AA) => AA): List[AA] = {
     val (minLengthList, maxLengthList) = if (this.length <= other.length) (this, other) else (other, this)
@@ -95,11 +95,11 @@ sealed trait List[+A] {
     loop(minLengthList, maxLengthList)(Nil)
   }
 
-  def filter(p: A => Boolean): List[A] = this.flatMap(i => if (p(i)) List(i) else Nil)
+  def filter(p: A => Boolean): List[A] = flatMap(i => if (p(i)) List(i) else Nil)
 
-  def foreach(f: A => Unit): Unit = this.map(f)
+  def foreach(f: A => Unit): Unit = map(f)
 
-  override def toString: String = this.foldLeft("")((acc, a) => acc + a.toString)
+  override def toString: String = foldLeft("")((acc, a) => acc + a.toString)
 
   def hasSubsequence[AA >: A](sub: List[AA]): Boolean = {
     val thisStr = this.toString
