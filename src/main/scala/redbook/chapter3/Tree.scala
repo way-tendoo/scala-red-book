@@ -2,9 +2,15 @@ package redbook.chapter3
 
 sealed trait Tree[+A] {
 
-  def size: Int = fold(_ => 1)((lhs, rhs) => 1 + lhs + rhs)
+  def size: Int = fold(_ => 1) {
+    case (lhs, rhs) =>
+      lhs + rhs + 1
+  }
 
-  def depth: Int = fold(_ => 1)((lhs, rhs) => 1 + Math.max(lhs, rhs))
+  def depth: Int = fold(_ => 1) {
+    case (lhs, rhs) =>
+      Math.max(lhs, rhs) + 1
+  }
 
   def maximum[AA >: A](max: (AA, AA) => AA): AA = fold(_.asInstanceOf[AA])(max)
 
@@ -14,8 +20,7 @@ sealed trait Tree[+A] {
     case Leaf(value)         => f(value)
     case Branch(left, right) => combine(left.fold(f)(combine), right.fold(f)(combine))
   }
-}
 
+}
 case class Leaf[A](value: A)                        extends Tree[A]
 case class Branch[A](left: Tree[A], right: Tree[A]) extends Tree[A]
-

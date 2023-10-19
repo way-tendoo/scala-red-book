@@ -71,4 +71,8 @@ class StreamSpec extends AnyFlatSpec with should.Matchers {
     Stream(1, 2, 3).filter(_   % 2 == 0).toList shouldBe List(2)
     Stream.empty[Int].filter(_ % 2 == 0).toList shouldBe List.empty
   }
+
+  "unfold func" should "work" in {
+    Stream.unfold(1)(a => Some((a, a))).take(5).toList shouldBe List(1, 1, 1, 1, 1)
+  }
 }
