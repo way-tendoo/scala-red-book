@@ -28,6 +28,8 @@ sealed trait Either[+E, +A] {
     case Right(_) => false
   }
 
+  def isRight: Boolean = !this.isLeft
+
   def right: Right[A] = this match {
     case Left(_)      => throw new UnsupportedOperationException("Left.right")
     case Right(value) => Right(value)
