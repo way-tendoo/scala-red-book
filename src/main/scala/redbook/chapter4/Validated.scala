@@ -1,6 +1,6 @@
 package redbook.chapter4
 
-case class Validated[+E, +A](value: Option[A], error: List[E])
+case class Validated[+E, +A](value: Option[A], errors: List[E])
 
 object Validated {
 
@@ -15,7 +15,7 @@ object Validated {
         Validated(Some(func(f, s, t)), List.empty[E])
       }
       validated.getOrElse {
-        Validated(None, first.error ++ second.error ++ third.error)
+        Validated(None, first.errors ++ second.errors ++ third.errors)
       }
     }
   }
