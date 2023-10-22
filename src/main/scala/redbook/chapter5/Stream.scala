@@ -54,6 +54,26 @@ sealed trait Stream[+A] {
 
   def filter(p: A => Boolean): Stream[A] = flatMap(a => if (p(a)) Stream(a) else Stream.empty)
 
+  def zipWith[AA >: A](other: Stream[AA])(zip: (AA, AA) => AA): Stream[AA] = unfold((this, other)) {
+    case (Empty, Empty)            => None
+    case (Empty, rhs @ Cons(_, _)) => Some((rhs.h(), (Empty, rhs.t())))
+    case (lhs @ Cons(_, _), Empty) => Some((lhs.h(), (lhs.t(), Empty)))
+    case (lhs @ Cons(_, _), rhs @ Cons(_, _)) =>
+      val zipped = zip(lhs.h(), rhs.h())
+      Some((zipped, (lhs.t(), rhs.t())))
+  }
+
+  def zipAll[B](other: Stream[B]): Stream[(Option[A], Option[B])] = unfold((this, other)) {
+    case (Empty, Empty)                       => None
+    case (Empty, rhs @ Cons(_, _))            => Some(((None, Some(rhs.h())), (Empty, rhs.t())))
+    case (lhs @ Cons(_, _), Empty)            => Some(((Some(lhs.h()), None), (lhs.t(), Empty)))
+    case (lhs @ Cons(_, _), rhs @ Cons(_, _)) => Some(((Some(lhs.h()), Some(rhs.h())), (lhs.t(), rhs.t())))
+  }
+
+  def startsWith[AA >: A](prefix: Stream[AA]): Boolean = {
+    true
+  }
+
 }
 case object Empty                                   extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
@@ -71,7 +91,7 @@ object Stream {
 
   def empty[A]: Stream[A] = Empty
 
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+  def unfold[A, S](init: S)(f: S => Option[(A, S)]): Stream[A] = f(init) match {
     case Some(value) =>
       val (a, s) = value
       cons(a, unfold(s)(f))

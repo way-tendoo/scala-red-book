@@ -75,4 +75,26 @@ class StreamSpec extends AnyFlatSpec with should.Matchers {
   "unfold func" should "work" in {
     Stream.unfold(1)(a => Some((a, a))).take(5).toList shouldBe List(1, 1, 1, 1, 1)
   }
+
+  "zipWith func" should "work" in {
+    Stream(1, 2, 3).zipWith(Stream(1, 2, 3))(_ + _).toList shouldBe List(2, 4, 6)
+    Stream(1, 2, 3).zipWith(Stream(1, 2))(_ + _).toList shouldBe List(2, 4, 3)
+    Stream(1, 2).zipWith(Stream(1, 2, 3))(_ + _).toList shouldBe List(2, 4, 3)
+    Stream(1, 2, 3).zipWith(Stream.empty)(_ + _).toList shouldBe List(1, 2, 3)
+    Stream.empty.zipWith(Stream(1, 2, 3))(_ + _).toList shouldBe List(1, 2, 3)
+    Stream.empty[Int].zipWith(Stream.empty[Int])(_ + _).toList shouldBe List.empty
+  }
+
+  "zipAll func" should "work" in {
+    Stream(1, 2, 3).zipAll(Stream(4, 5, 6)).toList shouldBe List(
+      (Some(1), Some(4)),
+      (Some(2), Some(5)),
+      (Some(3), Some(6))
+    )
+    Stream(1, 2, 3).zipAll(Stream(4, 5)).toList shouldBe List((Some(1), Some(4)), (Some(2), Some(5)), (Some(3), None))
+    Stream(1, 2).zipAll(Stream(4, 5, 6)).toList shouldBe List((Some(1), Some(4)), (Some(2), Some(5)), (None, Some(6)))
+    Stream(1, 2, 3).zipAll(Stream.empty).toList shouldBe List((Some(1), None), (Some(2), None), (Some(3), None))
+    Stream.empty.zipAll(Stream(4, 5, 6)).toList shouldBe List((None, Some(4)), (None, Some(5)), (None, Some(6)))
+    Stream.empty.zipAll(Stream.empty).toList shouldBe List.empty
+  }
 }

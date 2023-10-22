@@ -83,16 +83,17 @@ sealed trait List[+A] {
   def flatMap[B](f: A => List[B]): List[B] = map(f).flatten
 
   def zipWith[AA >: A](other: List[AA])(zip: (AA, AA) => AA): List[AA] = {
-    val (minLengthList, maxLengthList) = if (this.length <= other.length) (this, other) else (other, this)
     @tailrec
-    def loop(minLengthList: List[AA], maxLengthList: List[AA])(buffer: List[AA]): List[AA] =
-      (minLengthList, maxLengthList) match {
-        case (Nil, maxLengthList) => buffer.append(maxLengthList)
-        case (Cons(minLengthListHead, minLengthListTail), Cons(maxLengthListHead, maxLengthListTail)) =>
-          val zipped = zip(minLengthListHead, maxLengthListHead)
-          loop(minLengthListTail, maxLengthListTail)(buffer.append(List(zipped)))
+    def loop(lhs: List[AA], rhs: List[AA])(buffer: List[AA]): List[AA] =
+      (lhs, rhs) match {
+        case (Nil, Nil)              => buffer
+        case (Nil, rhs @ Cons(_, _)) => buffer.append(rhs)
+        case (lhs @ Cons(_, _), Nil) => buffer.append(lhs)
+        case (lhs @ Cons(_, _), rhs @ Cons(_, _)) =>
+          val zipped = zip(lhs.head, rhs.head)
+          loop(lhs.tail, rhs.tail)(buffer.append(List(zipped)))
       }
-    loop(minLengthList, maxLengthList)(Nil)
+    loop(this, other)(Nil)
   }
 
   def filter(p: A => Boolean): List[A] = flatMap(i => if (p(i)) List(i) else Nil)
