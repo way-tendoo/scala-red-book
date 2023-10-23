@@ -126,9 +126,12 @@ class ListSpec extends AnyFlatSpec with should.Matchers {
     List(4).zipWith(List(1, 2, 3))(_ + _) shouldBe List(5, 2, 3)
   }
 
-  "toString func" should "work" in {
-    List(1, 2, 3).toString shouldBe "123"
-    Nil.toString shouldBe ""
+  "startWith func" should "work" in {
+    List(1, 2, 3).startsWith(List(1, 2)) shouldBe true
+    List(1, 2, 3).startsWith(List(2, 3)) shouldBe false
+    List(1, 2, 3).startsWith(List(1, 2, 3)) shouldBe true
+    List(1, 2, 3).startsWith(List(1)) shouldBe true
+    List(1, 2, 3).startsWith(List()) shouldBe false
   }
 
   "hasSubsequence func" should "work" in {

@@ -97,4 +97,30 @@ class StreamSpec extends AnyFlatSpec with should.Matchers {
     Stream.empty.zipAll(Stream(4, 5, 6)).toList shouldBe List((None, Some(4)), (None, Some(5)), (None, Some(6)))
     Stream.empty.zipAll(Stream.empty).toList shouldBe List.empty
   }
+
+  "startWith func" should "work" in {
+    Stream(1, 2, 3).startsWith(Stream(1, 2)) shouldBe true
+    Stream(1, 2, 3).startsWith(Stream(2, 3)) shouldBe false
+    Stream(1, 2, 3).startsWith(Stream(1, 2, 3)) shouldBe true
+    Stream(1, 2, 3).startsWith(Stream(1)) shouldBe true
+    Stream(1, 2, 3).startsWith(Stream.empty) shouldBe false
+  }
+
+  "tails func" should "work" in {
+    Stream(1, 2, 3).tails.map(_.toList).toList shouldBe List(List(1, 2, 3), List(2, 3), List(3), List.empty)
+    Stream(1).tails.map(_.toList).toList shouldBe List(List(1), List.empty)
+    Stream.empty[Int].tails.map(_.toList).toList shouldBe List(List.empty)
+  }
+
+  "hasSubsequence func" should "work" in {
+    Stream(1, 2, 3).hasSubsequence(Stream(2, 3)) shouldBe true
+    Stream(1, 2, 3).hasSubsequence(Stream.empty) shouldBe false
+    Stream(1, 2, 3).hasSubsequence(Stream(2, 3)) shouldBe true
+    Stream(1, 2, 2, 3).hasSubsequence(Stream(2, 3)) shouldBe true
+  }
+
+  "scanRight func" should "work" in {
+    Stream(1, 2, 3).scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
+    Stream.empty[Int].scanRight(0)(_ + _).toList shouldBe List(0)
+  }
 }

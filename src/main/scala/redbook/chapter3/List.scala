@@ -100,13 +100,25 @@ sealed trait List[+A] {
 
   def foreach(f: A => Unit): Unit = map(f)
 
-  override def toString: String = foldLeft("")((acc, a) => acc + a.toString)
+  def startsWith[AA >: A](prefix: List[AA]): Boolean = {
+    if (prefix == Nil) return false
+    @tailrec
+    def loop(source: List[AA], prefix: List[AA]): Boolean = (source, prefix) match {
+      case (_, Nil)                                             => true
+      case (l @ Cons(_, _), p @ Cons(_, _)) if l.head == p.head => loop(l.tail, p.tail)
+      case _                                                    => false
+    }
+    loop(this, prefix)
+  }
 
   def hasSubsequence[AA >: A](sub: List[AA]): Boolean = {
-    val thisStr = this.toString
-    val subStr  = sub.toString
-    if (thisStr.nonEmpty && subStr.isEmpty) return false
-    thisStr.contains(subStr)
+    @tailrec
+    def loop(source: List[AA]): Boolean = source match {
+      case l @ Cons(_, _) if l.startsWith(sub)  => true
+      case l @ Cons(_, _) if !l.startsWith(sub) => loop(l.tail)
+      case Nil                                  => false
+    }
+    loop(this)
   }
 }
 case object Nil                             extends List[Nothing]

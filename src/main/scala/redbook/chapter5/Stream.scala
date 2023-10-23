@@ -1,6 +1,6 @@
 package redbook.chapter5
 
-import redbook.chapter5.Stream.{ cons, unfold }
+import redbook.chapter5.Stream.{ cons, empty, unfold }
 
 import scala.annotation.tailrec
 
@@ -56,27 +56,43 @@ sealed trait Stream[+A] {
 
   def zipWith[AA >: A](other: Stream[AA])(zip: (AA, AA) => AA): Stream[AA] = unfold((this, other)) {
     case (Empty, Empty)            => None
-    case (Empty, rhs @ Cons(_, _)) => Some((rhs.h(), (Empty, rhs.t())))
-    case (lhs @ Cons(_, _), Empty) => Some((lhs.h(), (lhs.t(), Empty)))
+    case (Empty, rhs @ Cons(_, _)) => Some((rhs.head(), (Empty, rhs.tail())))
+    case (lhs @ Cons(_, _), Empty) => Some((lhs.head(), (lhs.tail(), Empty)))
     case (lhs @ Cons(_, _), rhs @ Cons(_, _)) =>
-      val zipped = zip(lhs.h(), rhs.h())
-      Some((zipped, (lhs.t(), rhs.t())))
+      val zipped = zip(lhs.head(), rhs.head())
+      Some((zipped, (lhs.tail(), rhs.tail())))
   }
 
   def zipAll[B](other: Stream[B]): Stream[(Option[A], Option[B])] = unfold((this, other)) {
     case (Empty, Empty)                       => None
-    case (Empty, rhs @ Cons(_, _))            => Some(((None, Some(rhs.h())), (Empty, rhs.t())))
-    case (lhs @ Cons(_, _), Empty)            => Some(((Some(lhs.h()), None), (lhs.t(), Empty)))
-    case (lhs @ Cons(_, _), rhs @ Cons(_, _)) => Some(((Some(lhs.h()), Some(rhs.h())), (lhs.t(), rhs.t())))
+    case (Empty, rhs @ Cons(_, _))            => Some(((None, Some(rhs.head())), (Empty, rhs.tail())))
+    case (lhs @ Cons(_, _), Empty)            => Some(((Some(lhs.head()), None), (lhs.tail(), Empty)))
+    case (lhs @ Cons(_, _), rhs @ Cons(_, _)) => Some(((Some(lhs.head()), Some(rhs.head())), (lhs.tail(), rhs.tail())))
   }
 
   def startsWith[AA >: A](prefix: Stream[AA]): Boolean = {
-    true
+    if (prefix == Empty) return false
+    @tailrec
+    def loop(source: Stream[AA], prefix: Stream[AA]): Boolean = (source, prefix) match {
+      case (_, Empty)                                               => true
+      case (s @ Cons(_, _), p @ Cons(_, _)) if s.head() == p.head() => loop(s.tail(), p.tail())
+      case _                                                        => false
+    }
+    loop(this, prefix)
   }
 
+  def tails: Stream[Stream[A]] = scanRight(empty[A]) ((a, acc) => Stream(a).append(acc))
+
+  def scanRight[B](init: => B)(f: (A, => B) => B): Stream[B] = this match {
+    case Empty          => Stream(init)
+    case s @ Cons(_, _) => cons(s.foldRight(init)(f), s.tail().scanRight(init)(f))
+  }
+
+  def hasSubsequence[AA >: A](other: Stream[AA]): Boolean = tails.exists(_ startsWith other)
+
 }
-case object Empty                                   extends Stream[Nothing]
-case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
+case object Empty                                         extends Stream[Nothing]
+case class Cons[+A](head: () => A, tail: () => Stream[A]) extends Stream[A]
 
 object Stream {
 
