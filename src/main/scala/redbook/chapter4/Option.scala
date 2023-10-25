@@ -45,17 +45,17 @@ case object None              extends Option[Nothing]
 
 object Option {
 
-  implicit class ListOptOps[A](val list: List[Option[A]]) {
+  implicit class ListOptOps[A](val l: List[Option[A]]) {
     def sequence: Option[List[A]] = {
-      if (list.isEmpty) return None
-      val allSuccess = list.forall(_.isDefined)
-      if (allSuccess) Some(list.map(_.get))
+      if (l.isEmpty) return None
+      val allSuccess = l.forall(_.isDefined)
+      if (allSuccess) Some(l.map(_.get))
       else None
     }
   }
 
-  implicit class ListOps[A](val list: List[A]) {
-    def traverse[B](f: A => Option[B]): Option[List[B]] = list.map(f).sequence
+  implicit class ListOps[A](val l: List[A]) {
+    def traverse[B](f: A => Option[B]): Option[List[B]] = l.map(f).sequence
   }
 
 }

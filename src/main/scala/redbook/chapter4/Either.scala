@@ -28,8 +28,6 @@ sealed trait Either[+E, +A] {
     case Right(_) => false
   }
 
-  def isRight: Boolean = !this.isLeft
-
   def right: Right[A] = this match {
     case Left(_)      => throw new UnsupportedOperationException("Left.right")
     case Right(value) => Right(value)
@@ -50,16 +48,16 @@ case class Right[+A](value: A) extends Either[Nothing, A] {
 
 object Either {
 
-  implicit class ListOptOps[E, A](val list: List[Either[E, A]]) {
+  implicit class ListEitherOps[E, A](val l: List[Either[E, A]]) {
     def sequence: Either[E, List[A]] = {
-      val (errors, values) = list.partition(_.isLeft)
+      val (errors, values) = l.partition(_.isLeft)
       if (errors.nonEmpty) Left(errors.head.left.get)
       else Right(values.map(_.right.get))
     }
   }
 
-  implicit class ListOps[A](val list: List[A]) {
-    def traverse[E, B](f: A => Either[E, B]): Either[E, List[B]] = list.map(f).sequence
+  implicit class ListOps[A](val l: List[A]) {
+    def traverse[E, B](f: A => Either[E, B]): Either[E, List[B]] = l.map(f).sequence
   }
 
 }
